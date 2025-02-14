@@ -1,3 +1,8 @@
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    # •••••••••  By David Quesada Heredia davidquesadaheredia@gmail.com ••••••••••
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 import re
 from datetime import date, datetime
 from datetime import time 
@@ -12,7 +17,7 @@ class Sdata():
 
     Ejemplo:
     >>> dict_result = Sdata.get_data( key_dict='l', tipo=list , msg_entrada='INTRODUCE LISTA SEPARANDO POR COMAS (1,2,3,...)', permite_nulo=True)
-    >>> dict_result = Sdata.get_data( dicc=dict_result , key_dict='pos', tipo='between' , msg_entrada=['VERTICAL', 'HORIZONTAL'], permite_nulo=False)    
+    >>> dict_result = Sdata.get_data( dicc=dict_result , key_dict='pos', tipo='BETWEEN' , msg_entrada=['VERTICAL', 'HORIZONTAL'], permite_nulo=False)    
     >>> dict_result = Sdata.get_data( dicc=dict_result , key_dict='dat', tipo = date , msg_entrada='INTRODUCE FECHA (dd/mm/yyyy)')    
     >>> print(f'lista: {dict_result['l']} - fecha: {dict_result['dat']} - hora: {dict_result['pos']} ')
     
@@ -20,8 +25,9 @@ class Sdata():
     
     # ■■■ Ejemplo de uso:   dato_tipado = Sdata.TIPOS_VALIDOS[tipo](entrada)
     TIPOS_VALIDOS = {
-        int: lambda v: int(v) if StringTo.esInt(v) else None,
-        float: lambda v: float(v) if StringTo.esFloat(v) else None,
+        # int: lambda v: StringTo.esInt(v) if StringTo.esInt(v) != False else None,
+        int: lambda v: StringTo.esInt(v) if StringTo.esInt(v) is not False else None,
+        float: lambda v: StringTo.esFloat(v) if StringTo.esFloat(v) != False else None,
         str: lambda v: v  ,
         bool: lambda v: v ,  # SOLO DEVUELVE VALOR, VALIDACION FUERA
         list: lambda v: v ,  # SOLO DEVUELVE VALOR, VALIDACION FUERA
@@ -29,19 +35,19 @@ class Sdata():
         tuple: lambda v: v ,  # SOLO DEVUELVE VALOR, VALIDACION FUERA
         date: lambda v: datetime.strptime(v, "%d/%m/%Y").date() if StringTo.esDate(v) else None,
         time: lambda v: datetime.strptime(v, "%H:%M").time() if re.match(r"^(2[0-3]|[01]?\d):([0-5]\d)$", v) else None,
-        "DNI": lambda v: v if StringTo.partirDNI(v)[0] else None,
+        "DNI": lambda v: v if StringTo.esDNI(v) else None,
         "Email": lambda v: v if StringTo.esMail(v) else None,
         "IP": lambda v: v if StringTo.esIPValida(v) else None,
-        "between": lambda v: v  # SOLO DEVUELVE VALOR, VALIDACION FUERA
+        "BETWEEN": lambda v: v  # SOLO DEVUELVE VALOR, VALIDACION FUERA
     }
 
-    TIPOS_VALIDACION_EXTERNA = [bool, list, set, tuple, 'between']
+    TIPOS_VALIDACION_EXTERNA = [bool, list, set, tuple, 'BETWEEN']
 
 
     VALORES_POR_DEFECTO = {
         int: 0,
         float: 0.0,
-        str: "",
+        str: '',
         bool: False,
         list: [],
         set: set(),
@@ -51,7 +57,7 @@ class Sdata():
         "DNI": "00000000X",
         "Email": "unknown@mail.com",
         "IP": "0.0.0.0",
-        "between": None 
+        "BETWEEN": None 
     }
 
     VALORES_NULOS = {
@@ -67,7 +73,7 @@ class Sdata():
         'DNI'   : None,
         'Email' : None,
         'IP'    : None,
-        "between" : None 
+        "BETWEEN" : None 
     }
 
 
@@ -101,9 +107,9 @@ class Sdata():
             date: date(1900, 1, 1),
             time: time(0, 0),
             "DNI": "00000000X",
-            "Email": "unknown@mail.com",
+            "EMAIL": "unknown@mail.com",
             "IP": "0.0.0.0",
-            "between": None
+            "BETWEEN": None
         }
 
     
@@ -114,7 +120,7 @@ class Sdata():
 
     # *******************************************
     @staticmethod
-    def get_data(key_dict:str, dicc:dict = None, tipo = str, msg_entrada:str='Intro... ', permite_nulo:bool=False  ):
+    def get_data(key_dict:str, dicc:dict = None, tipo = str, msg_entrada:str='Intro... ', permite_nulo:bool=False , valores_between:list=None ):
         """ >>> Convierte una key de entrada en un diccionario (key): Intro by Teclado
         [key_dict](str): la clave el dict resultante.
         [dicc](dict): si se introduce, y es un diccionario que existe, se añade la key a las keys del diccionario.
@@ -126,21 +132,32 @@ class Sdata():
 
         Ejemplo:       
         >>> lista = Sdata.get_data( key_dict='l', tipo=list , msg_entrada='INTRODUCE LISTA SEPARANDO POR COMAS (1,2,3,...)', permite_nulo=True)
-        >>> lista = Sdata.get_data( dicc=lista , key_dict='pos', tipo='between' , msg_entrada=['VERTICAL', 'HORIZONTAL'], permite_nulo=False)    
+        >>> lista = Sdata.get_data( dicc=lista , key_dict='pos', tipo='BETWEEN' , msg_entrada=['VERTICAL', 'HORIZONTAL'], permite_nulo=False)    
         >>> lista = Sdata.get_data( dicc=lista , key_dict='dat', tipo = date , msg_entrada='INTRODUCE FECHA (dd/mm/yyyy)')    
         >>> print(f'lista: {lista['l']} - fecha: {lista['dat']} - hora: {lista['pos']} ')
 
+        entrada == ENTRADA_NULL and permite_nulo == True:   => obtiene el valor por defecto.
+        entrada == ENTRADA_NULL and permite_nulo == False:  => Repite entrada
+        entrada != ENTRADA_NULL                             => si valor valido => entrada
+                                                            => si valor no valido => Repite entrada
+
+         
+
         """        
-        
+        # VALIDA QUE EL TIPO ESTÉ REGISTRADO
         if not tipo in Sdata.TIPOS_VALIDOS: 
-            return None                   # Tipo por defecto.
+            if isinstance(tipo, str):
+                if not tipo.upper() in Sdata.TIPOS_VALIDOS:
+                    return None
+            else:
+                return None                   
         
         # Diccionario de parametros         
         options = { 'msg_entrada':msg_entrada , 'permite_nulo': permite_nulo  } 
 
         # DICCIONARIO QUE SE CREA CON LOS PARAMETROS PASADOS. LUEGO TIENE QUE PASAR POR DICC PARA EL RETORNO FINAL        
         dictRetorno = {
-            key_dict:Sdata.__introByTcld(key_dict = key_dict, tipo = tipo , options = options )
+            key_dict:Sdata.__introByTcld(key_dict = key_dict, tipo = tipo , options = options, valores_between = valores_between )
         }
 
         # ADD LA CLAVE AL DICCIONARIO PASADO COMO ARGUMENTO.
@@ -154,7 +171,7 @@ class Sdata():
     # From lista1 de str To Dict(k)valorLista1 (v)Intro Teclado. Permite elegir Nulo/noNulo y crecer
     # ********************
     @staticmethod
-    def __introByTcld(key_dict, tipo, options=None):
+    def __introByTcld(key_dict, tipo, options=None, valores_between:list=None):
         """ Llamada desde get_data(): 
         [tipo](list) pasa siempre tipo =>[(int, False), (int, False)] lista de tuplas tipo, b_Permite_Nulo
         [options](dict)= { 'msg_entrada':msg_entrada , 'permite_nulo': permite_nulo , 'capital':esCapital } las opciones que se pasan 
@@ -186,8 +203,8 @@ class Sdata():
         else:  # Si es una instancia de otro tipo, devolvemos su tipo
             str_tipo = type(tipo).__name__.upper()
         
-        # EL TIPO CONDICIONA msg_entrada EN CASO DE SER between
-        if tipo == 'between' :
+        # EL TIPO CONDICIONA msg_entrada EN CASO DE SER BETWEEN
+        if tipo == 'BETWEEN' :
             str_entrada = f'Elige Entre: [ {msg_entrada} ]'
         else:
             str_entrada = msg_entrada
@@ -203,10 +220,11 @@ class Sdata():
         # PIDO DATOS POR TECLADO
         while True:
             entrada = input(f'\nK[ {key_dict} ] - {str_entrada}  - ( {str_tipo} - {msg_nulo} )..... ')
+
             entrada = entrada.strip()
             try:
                 if entrada == ENTRADA_NULL and permite_nulo == True:
-                    """ ■ RETORNA ESTE VALOR PARA QUE SE TRATE EL VALOR POR DEFECTO 
+                    """ ■ RETORNA ESTE VALOR PARA QUE SE TRATE EL ■■■ VALOR POR DEFECTO 
                     """
                     entrada = Sdata.get_valor_bydef(tipo=tipo)
                     break
@@ -236,26 +254,59 @@ class Sdata():
                             else:
                                 entrada = tipo(entrada)
 
-                        elif tipo == 'between':
-                            """ ■ ENTRA UN STR Y TIENE QUE ESTAR ENTRE LOS VALORES INTRODUCIDOS EN msg_entrada Y PUEDE VENIR COMO LISTA O COMO CADENA 
+                        elif str(tipo).upper() == 'BETWEEN':
+                            """ ■ ENTRA BETWEEN. HAY VARIAS POSIBILIDADES.
+                            [valores_between](list, str): una lista de valores o un string que son una lista de valores separados por comas.
+                                No es obligatorio. Si no entra, Buscamos la lista de valores en msg_entrada
                             """
-                            if isinstance(msg_entrada, str):
-                                lst_between = StringTo.cadena_to_lista(cadena=msg_entrada)
-                                
-                                # CONVIERTE LOS ELEMENTOS A STRING
-                                lst_between = [str(item_between) for item_between in lst_between]
-                                if not entrada in lst_between:
-                                    continue
+                            if valores_between:
+                                if isinstance(valores_between, str):
+                                    """ >>> ENTRA COMO UNA CADENA ... vemos si tiene items separados por comas Y LO DEJAMOS COMO UNA LISTA
+                                    """
+                                    lst_between = StringTo.cadena_to_lista(cadena=valores_between if valores_between else msg_entrada)
 
-                            elif isinstance(msg_entrada, list):
-                                may_entrada = entrada.upper()
-                                msg_entrada = [str(item).upper() for item in msg_entrada]
-                                if not may_entrada in msg_entrada:
-                                    continue
-                                else: 
-                                    for item in msg_entrada:
-                                        if item == may_entrada:
-                                            entrada = item
+                                    # CONVIERTE LOS ELEMENTOS A STRING
+                                    lst_between = [str(item_between) for item_between in lst_between]
+                                    
+                                    # COMPARA:
+                                    if not entrada in lst_between:
+                                        continue
+
+                                elif isinstance(valores_between, list):
+                                    """ >>> ENTRA COMO UNA LISTA .... LO IDEAL
+                                    """
+                                    may_entrada = entrada.upper()
+                                    msg_between = [str(item).upper() for item in valores_between]
+                                    if not may_entrada in msg_between:
+                                        continue
+                                    else: 
+                                        # COMPARO LOS VALORES EN MAYUSCULAS CON EL ITEM DE ENTRADA EN MAYUSCULAS Y PASO EL VALOR BETWEEN(TYPO)
+                                        for valor in valores_between:    
+                                            if str(valor).upper() == may_entrada:
+                                                entrada = valor
+                                                break
+
+                            elif not valores_between and msg_entrada:
+                                """ >>> NO TIENES VALOR_BETWEEN, VAMOS A PROBAR CON MSG_ENTRADA, PERO NO DEBERÍA SER ASÍ. """
+                                if isinstance(msg_entrada, str):
+                                    lst_between = StringTo.cadena_to_lista(cadena=msg_entrada)                                    
+                                    # CONVIERTE LOS ELEMENTOS A STRING
+                                    lst_between = [str(item_between) for item_between in lst_between]
+                                    # COMPARA:
+                                    if not entrada in lst_between:
+                                        continue
+
+                                elif isinstance(msg_entrada, list):
+                                    # ENTRA COMO UNA LISTA
+                                    may_entrada = entrada.upper()
+                                    msg_entrada = [str(item).upper() for item in msg_entrada]
+                                    if not may_entrada in msg_entrada:
+                                        continue
+                                    else: 
+                                        for item in msg_entrada:
+                                            if item == may_entrada:
+                                                entrada = item
+                                                break
                             else:
                                 continue
                         else:
@@ -265,11 +316,8 @@ class Sdata():
                             if entrada == None and permite_nulo == False:
                                 continue
                             elif entrada == None and permite_nulo == True:
-                                # entrada = Sdata.get_valor_bydef(tipo=tipo)
-                                # break
-                                continue
-                            else:
-                                pass
+                                entrada = Sdata.get_valor_bydef(tipo=tipo)
+                            pass  
                     except Exception as e:
                         print(f'{e}')
                         continue
@@ -340,7 +388,7 @@ class StringTo():
     @staticmethod
     def partirDNI(dni):
         """
-        Def: Valida un dni con expresiones regulares (8numeros['.','-',' ']letra) 
+        Def: Valida un dni con expresiones regulares [8 numeros + ['.','-',' ']letra]
         Retorno: El numero de dni , la letra del dni
         None si no es formato valido.
         """
@@ -353,6 +401,15 @@ class StringTo():
             return number, letter
         else:
             return None, None
+    
+    @staticmethod
+    def esDNI(dni):
+        """ Devuelve True o False si se introduce un DNI valido o Invalido. """
+        numero, letra = StringTo.partirDNI(dni) 
+        if numero == None or letra == None: 
+            return False
+        else:
+            return True
 
     @staticmethod
     def partirIP(ip):
@@ -447,7 +504,7 @@ class StringTo():
         # .... Se lee: en toda la cadena [ From Ini(^); to Fin ($) ]
         #              Buscamos:  guion(-) opcional(?) y/o  0-9(\d)   ,  n veces(+)(solo el digito) 
         patronInt=r'^-?\d+$'
-        num=re.match(patronInt, str(strNum))        
+        num = re.match(patronInt, str(strNum))        
         if num:
             return int(strNum) 
         else:
@@ -550,4 +607,8 @@ class StringTo():
             return lst_retorno
         except Exception as e:
             return None
-    
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    # •••••••••  By David Quesada Heredia davidquesadaheredia@gmail.com ••••••••••
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■

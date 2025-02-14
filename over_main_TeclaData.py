@@ -4,68 +4,78 @@ from Sdata import Sdata
 from datetime import date 
 from datetime import time 
 
-diccionario = {}
+dat = {}
+permite_nulo = False
 
 def sdata_int():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='int', tipo = int,msg_entrada='INTRODUCE UN ENTERO', permite_nulo=True)    
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='int', tipo = int,msg_entrada='INTRODUCE UN ENTERO', permite_nulo=permite_nulo)    
+    print(dat)
 def sdata_float():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='float', tipo = float,msg_entrada='INTRODUCE UN FLOAT', permite_nulo=True)    
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='float', tipo = float,msg_entrada='INTRODUCE UN FLOAT', permite_nulo=permite_nulo)    
+    print(dat)
 def sdata_str():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='str',tipo=str,msg_entrada='INTRODUCE UN STRING', permite_nulo = True)
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='str',tipo=str,msg_entrada='INTRODUCE UN STRING', permite_nulo = True)
+    print(dat)
 def sdata_bool():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='bool',tipo=bool,msg_entrada='QUIERES CONTINUAR( V / F )?', permite_nulo=True)    
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='bool',tipo=bool,msg_entrada='QUIERES CONTINUAR( V / F )?', permite_nulo=permite_nulo)    
+    print(dat)
 def sdata_dni():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='dni',tipo='DNI',msg_entrada='INTRODUCE DNI (nnnnnnnnA)', permite_nulo=True)    
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='dni',tipo='DNI',msg_entrada='INTRODUCE DNI (nnnnnnnnA)', permite_nulo=permite_nulo)    
+    print(dat)
 def sdata_email():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='email',tipo='EMAIL',msg_entrada='INTRODUCE email (a@a)', permite_nulo=True)    
-    print(diccionario)
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='email',tipo='EMAIL',msg_entrada='INTRODUCE email (a@a)', permite_nulo=permite_nulo)    
+    print(dat)
+    print(dat)
 def sdata_ip():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='ip',tipo='IP',msg_entrada='INTRODUCE IP (127.0.0.1)', permite_nulo=True)    
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='ip',tipo='IP',msg_entrada='INTRODUCE IP (127.0.0.1)', permite_nulo=permite_nulo)    
+    print(dat)
 def sdata_date():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='dat',tipo=date,msg_entrada='INTRODUCE FECHA (dd/mm/yyyy)', permite_nulo=True)    
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='dat',tipo=date,msg_entrada='INTRODUCE FECHA (dd/mm/yyyy)', permite_nulo=permite_nulo)    
+    print(dat)
 def sdata_time():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='hor',tipo=time,msg_entrada='INTRODUCE HORA (HH:MM)', permite_nulo=True)    
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='hor',tipo=time,msg_entrada='INTRODUCE HORA (HH:MM)', permite_nulo=permite_nulo)    
+    print(dat)
 def sdata_list():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='list',tipo=list,msg_entrada='LISTA SEPARANDO POR COMAS (1,2,3,...)', permite_nulo=True)
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='list',tipo=list,msg_entrada='LISTA SEPARANDO POR COMAS (1,2,3,...)', permite_nulo=permite_nulo)
+    print(dat)
 def sdata_between():
-    global diccionario
-    diccionario = Sdata.get_data( dicc=diccionario,key_dict='between',tipo='between',msg_entrada=['VERTICAL', 'HORIZONTAL'], permite_nulo=True)    
-    print(diccionario)
+    global dat
+    dat = Sdata.get_data( dicc=dat,key_dict='between',tipo='between',msg_entrada=['(V)ERTICAL', '(H)ORIZONTAL'], permite_nulo=permite_nulo, valores_between=['V', 'H'])    
+    print(dat)
 
 def sdata_reset():
-    global diccionario
+    global dat
     Sdata.reset_valores_bydef()
     print(Sdata.VALORES_POR_DEFECTO)
 
 def sdata_get():
-    global diccionario
+    global dat
     valor_bydef = Sdata.get_valor_bydef(tipo=int)    
     print(valor_bydef)
 
 def sdata_set():
-    global diccionario
+    global dat
     valor_bydef = Sdata.set_valor_bydef(tipo=int, valor=17 )    
     print(Sdata.VALORES_POR_DEFECTO)
+
+def switch_permite_null():
+    global dat
+    global permite_nulo
+    if permite_nulo == True:
+        permite_nulo = False
+    else:
+        permite_nulo = True
+
 
 def info():
     print(""" 
@@ -96,7 +106,7 @@ def main():
     The_X_Men = XindeX()
     # 2- CREO LOS MENUS Y SUS FUNCIONES ASOCIADAS _____________________________________________________________
     The_X_Men.addX(titulo='MenuPpal', 
-                    lst_items=[ ("TYPOS PYTHON",info),("FECHA/HORA",None),("ESPECIALS",None), ('ITERADORES', None), ('BETWEEN',sdata_between), ('MYSCELANEA', None)],
+                    lst_items=[ ('Swith Permite NULL', switch_permite_null) , ("TYPOS PYTHON",info),("FECHA/HORA",None),("ESPECIALS",None), ('ITERADORES', None), ('BETWEEN',sdata_between), ('MYSCELANEA', None)],
                     fraseHead="| - TECLADO -  ME PIDES TIPO Y YO TE LO DEVUELVO EN UN DICCIONARIO"
                     )
     The_X_Men.addX(titulo='SUB_TYPOS', lst_items=[("INT",sdata_int), ("FLOAT",sdata_float), ("STR",sdata_str), ("BOOL",sdata_bool)])  
